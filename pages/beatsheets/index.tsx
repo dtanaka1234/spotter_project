@@ -1,7 +1,7 @@
 import Head from 'next/head'
-import { InferGetStaticPropsType, GetStaticProps } from "next";
+import { GetStaticProps } from "next";
 import prisma from "../../lib/prisma";
-import {Beatsheet} from "../../types/beatsheets";
+import { Beatsheet } from "../../types/beatsheets";
 
 interface StaticProps {
   beatsheets: Beatsheet[];
@@ -28,7 +28,7 @@ export default ({ beetsheets }: StaticProps) => {
         <title>My Beatsheets</title>
         <meta property="og:title" content="My Beatsheets" key="title" />
       </Head>
-      <p>Hello world!</p>
+      <h1>My Beetsheets</h1>
       <ul>{ beetsheets.map((beatsheet) => <li>{ beatsheet.title }</li>) }</ul>
     </div>
   )
