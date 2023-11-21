@@ -1,0 +1,46 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model BeatSheet {
+  id        Int    @id @default(autoincrement())
+  title     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  act Act?
+}
+
+model Act {
+  id          Int       @id @default(autoincrement())
+  beatSheetId Int       @unique
+  beatsheet   BeatSheet @relation(fields: [beatSheetId], references: [id], onDelete: Cascade)
+  description String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  beat Beat?
+}
+
+model Beat {
+  id          Int         @id @default(autoincrement())
+  actId       Int         @unique
+  act         Act         @relation(fields: [actId], references: [id], onDelete: Cascade)
+  description String
+  duration    Int
+  cameraAngle CameraAngle @default(ANGLE1)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum CameraAngle {
+  ANGLE1
+  ANGLE2
+  ANGLE3
+}
