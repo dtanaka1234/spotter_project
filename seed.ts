@@ -1,18 +1,17 @@
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+import prisma from "./lib/prisma";
 
 const load = async () => {
     try {
-        await prisma.Beat.deleteMany()
+        await prisma.beat.deleteMany()
         console.log('Deleted records in Beat table')
 
-        await prisma.Act.deleteMany()
+        await prisma.act.deleteMany()
         console.log('Deleted records in Act table')
 
-        await prisma.BeatSheet.deleteMany()
+        await prisma.beatSheet.deleteMany()
         console.log('Deleted records in BeatSheet table')
 
-        await prisma.BeatSheet.create({
+        await prisma.beatSheet.create({
             data: {
                 title: 'Making a cool video!',
             },

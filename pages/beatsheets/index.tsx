@@ -8,20 +8,25 @@ interface StaticProps {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const beetsheets = await prisma.BeatSheet.findMany();
+  const beatsheets = await prisma.beatSheet.findMany();
 
-  for (const element of beetsheets) {
-    element.createdAt = element.createdAt.getTime();
-    element.updatedAt = element.updatedAt.getTime();
+  const convertedBeetsheets: Beatsheet[] = [];
+  for (const element of beatsheets) {
+    convertedBeetsheets.push({
+      id: element.id,
+      title: element.title,
+      createdAt: element.createdAt.getTime(),
+      updatedAt: element.updatedAt.getTime(),
+    });
   }
 
   return {
-    props: { beetsheets },
+    props: { beatsheets: convertedBeetsheets },
     revalidate: 10,
   };
 };
 
-export default ({ beetsheets }: StaticProps) => {
+export default ({ beatsheets }: StaticProps) => {
   return (
     <div>
       <Head>
@@ -29,7 +34,7 @@ export default ({ beetsheets }: StaticProps) => {
         <meta property="og:title" content="My Beatsheets" key="title" />
       </Head>
       <h1>My Beetsheets</h1>
-      <ul>{ beetsheets.map((beatsheet) => <li>{ beatsheet.title }</li>) }</ul>
+      <ul>{ beatsheets.map((beatsheet) => <li>{ beatsheet.title }</li>) }</ul>
     </div>
   )
 }
