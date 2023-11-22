@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import { GetStaticProps } from "next";
+import Link from "next/link";
 import prisma from "../../lib/prisma";
 import { Beatsheet } from "../../types/beatsheets";
 import Grid from '@mui/material/Grid';
@@ -19,8 +20,6 @@ export const getStaticProps: GetStaticProps = async () => {
     convertedBeetsheets.push({
       id: element.id,
       title: element.title,
-      createdAt: element.createdAt.getTime(),
-      updatedAt: element.updatedAt.getTime(),
     });
   }
 
@@ -49,7 +48,9 @@ export default function Beatsheets({beatsheets}: StaticProps) {
                 </StyledCardTitle>
               </CardContent>
               <CardActions>
-                <Button size="small" color="secondary">Open Beatsheet</Button>
+                <Link href={`/beatsheets/${beatsheet.id}`}>
+                  <Button size="small" color="primary">Open Beatsheet</Button>
+                </Link>
               </CardActions>
             </StyledCard>)
         }

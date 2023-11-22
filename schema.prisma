@@ -15,22 +15,22 @@ model BeatSheet {
   title     String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  act Act?
+  act Act[]
 }
 
 model Act {
   id          Int       @id @default(autoincrement())
-  beatSheetId Int       @unique
+  beatSheetId Int
   beatsheet   BeatSheet @relation(fields: [beatSheetId], references: [id], onDelete: Cascade)
   description String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  beat Beat?
+  beat Beat[]
 }
 
 model Beat {
   id          Int         @id @default(autoincrement())
-  actId       Int         @unique
+  actId       Int
   act         Act         @relation(fields: [actId], references: [id], onDelete: Cascade)
   description String
   duration    Int
