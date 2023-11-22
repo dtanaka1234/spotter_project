@@ -11,9 +11,10 @@ import prisma from "../../lib/prisma";
 import ActView from "../../components/acts/act_view";
 import { Act } from "../../types/acts";
 import { AddActButton, HeaderContainer } from "../../components/beatsheets/beatsheets.styled";
-import {Button, TextField} from "@mui/material";
+import { Button, TextField } from "@mui/material";
 
 interface StaticProps {
+  beatsheetId: number;
   beatsheetTitle: string;
   acts: any[];
 }
@@ -51,14 +52,14 @@ export const getStaticProps: GetStaticProps = async (context) => {
       actIdMap[element.actid] = {
         id: element.actid,
         description: element.actdescription,
-        beats: [
+        beats: element.beatid ? [
           {
             id: element.beatid,
             description: element.beatdescription,
             duration: element.duration,
             cameraAngle: element.cameraAngle,
           }
-        ],
+        ] : [],
       }
     }
   }
@@ -70,7 +71,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
   }, []);
 
   return {
-    props: { beatsheetTitle, acts: convertedActs },
+    props: { beatsheetId: parseInt(beatsheetId as string), beatsheetTitle, acts: convertedActs },
     revalidate: 10,
   };
 };
@@ -82,7 +83,7 @@ export const getStaticPaths: GetStaticPaths<{ beatsheetId: string }> = async () 
   }
 }
 
-export default function BeatsheetEditor({ beatsheetTitle, acts }: StaticProps) {
+export default function BeatsheetEditor({ beatsheetId, beatsheetTitle, acts }: StaticProps) {
   const [addActDialogOpen, setAddActDialogOpen] = React.useState<boolean>(false);
   const [newActNameText, setNewActNameText] = React.useState<string>("");
 
@@ -92,7 +93,14 @@ export default function BeatsheetEditor({ beatsheetTitle, acts }: StaticProps) {
   };
 
   const createNewAct = async () => {
-
+    await fetch('/api/act', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ beatsheetId, actDescription: newActNameText }),
+    })
+    setAddActDialogOpen(false);
   };
 
   return (
