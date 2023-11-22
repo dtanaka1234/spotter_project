@@ -10,7 +10,7 @@ interface StaticProps {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const actsForBeatsheet = await prisma.$queryRaw`
+  const actsForBeatsheet: any[] = await prisma.$queryRaw`
       SELECT
           *
       FROM "BeatSheet"
