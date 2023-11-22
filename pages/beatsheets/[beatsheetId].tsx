@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import * as React from 'react';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -7,71 +8,38 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-import prisma from "../../lib/prisma";
 import ActView from "../../components/acts/act_view";
 import { Act } from "../../types/acts";
 import { AddActButton, HeaderContainer } from "../../components/beatsheets/beatsheets.styled";
 import { Button, TextField } from "@mui/material";
+import {ActsResponse, getActs} from "../../api_clients/acts";
 
 interface StaticProps {
   beatsheetId: number;
   beatsheetTitle: string;
-  acts: any[];
+  acts: Act[];
+}
+
+type ErrorResponse = {
+  response: {
+    data: {
+      message: string
+    }
+  }
+}
+
+type SuccessResponse = {
+  message: string
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const { params } = context;
-  const beatsheetId = params.beatsheetId;
+  const beatsheetId = parseInt(params.beatsheetId as string);
 
-  const beatsForActs: any[] = await prisma.$queryRaw`
-      SELECT
-          beatsheet.title,
-          act.id as actid,
-          act.description as actdescription,
-          beat.id as beatid,
-          beat.description as beatdescription,
-          beat."cameraAngle",
-          beat.duration
-      FROM "BeatSheet" as beatsheet
-               LEFT OUTER JOIN "Act" as act ON act."beatSheetId" = beatsheet.id
-               LEFT OUTER JOIN "Beat" as beat ON beat."actId" = act.id
-      WHERE beatsheet.id = ${beatsheetId}::INT
-    `;
-
-  let beatsheetTitle = '';
-  const actIdMap = {};
-  for (const element of beatsForActs) {
-    if (actIdMap[element.actid]) {
-      actIdMap[element.actid].beats.push({
-        id: element.beatid,
-        description: element.beatdescription,
-        duration: element.duration,
-        cameraAngle: element.cameraAngle,
-      });
-    } else {
-      actIdMap[element.actid] = {
-        id: element.actid,
-        description: element.actdescription,
-        beats: element.beatid ? [
-          {
-            id: element.beatid,
-            description: element.beatdescription,
-            duration: element.duration,
-            cameraAngle: element.cameraAngle,
-          }
-        ] : [],
-      }
-    }
-  }
-
-  const convertedActs: Act[] = Object.keys(actIdMap).reduce((acc, key) => {
-    const actObj = actIdMap[key];
-    acc.push(actObj);
-    return acc;
-  }, []);
+  const actsListResponse = await getActs(beatsheetId);
 
   return {
-    props: { beatsheetId: parseInt(beatsheetId as string), beatsheetTitle, acts: convertedActs },
+    props: { beatsheetId, ...actsListResponse },
     revalidate: 10,
   };
 };
@@ -87,19 +55,38 @@ export default function BeatsheetEditor({ beatsheetId, beatsheetTitle, acts }: S
   const [addActDialogOpen, setAddActDialogOpen] = React.useState<boolean>(false);
   const [newActNameText, setNewActNameText] = React.useState<string>("");
 
+  const queryClient = useQueryClient()
+
+  const { data } = useQuery<ActsResponse>({
+    queryKey: ['actsList', beatsheetId],
+    queryFn: async () => {
+      return await getActs(beatsheetId);
+    },
+    initialData: { beatsheetTitle, acts },
+  } as any);
+
+  const createNewActMutation = useMutation<any, any, any, any>({
+    mutationFn: (newActName) => {
+      return fetch('/api/act', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ beatsheetId, actDescription: newActName }),
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actsList', beatsheetId] })
+    },
+  } as any);
+
   const handleAddActDialogClose = () => {
     setAddActDialogOpen(false);
     setNewActNameText("");
   };
 
   const createNewAct = async () => {
-    await fetch('/api/act', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ beatsheetId, actDescription: newActNameText }),
-    })
+    createNewActMutation.mutate(newActNameText);
     setAddActDialogOpen(false);
   };
 
@@ -138,7 +125,7 @@ export default function BeatsheetEditor({ beatsheetId, beatsheetTitle, acts }: S
       </HeaderContainer>
       <div>
         {
-          acts.map((act) => <ActView key={act.id} act={act}/>)
+          data?.acts.map((act) => <ActView key={act.id} act={act}/>)
         }
       </div>
     </div>
