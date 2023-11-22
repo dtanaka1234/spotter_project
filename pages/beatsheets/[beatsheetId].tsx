@@ -1,8 +1,17 @@
 import Head from 'next/head'
+import * as React from 'react';
 import { GetStaticPaths, GetStaticProps } from "next";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+
 import prisma from "../../lib/prisma";
 import ActView from "../../components/acts/act_view";
 import { Act } from "../../types/acts";
+import { AddActButton, HeaderContainer } from "../../components/beatsheets/beatsheets.styled";
+import {Button, TextField} from "@mui/material";
 
 interface StaticProps {
   beatsheetTitle: string;
@@ -74,13 +83,51 @@ export const getStaticPaths: GetStaticPaths<{ beatsheetId: string }> = async () 
 }
 
 export default function BeatsheetEditor({ beatsheetTitle, acts }: StaticProps) {
+  const [addActDialogOpen, setAddActDialogOpen] = React.useState<boolean>(false);
+  const [newActNameText, setNewActNameText] = React.useState<string>("");
+
+  const handleAddActDialogClose = () => {
+    setAddActDialogOpen(false);
+    setNewActNameText("");
+  };
+
+  const createNewAct = async () => {
+
+  };
+
   return (
     <div>
       <Head>
         <title>{`Editing ${beatsheetTitle}`}</title>
         <meta property="og:title" content={beatsheetTitle} key="title"/>
       </Head>
-      <h1>Acts for Beatsheet</h1>
+      <Dialog open={addActDialogOpen} onClose={handleAddActDialogClose}>
+        <DialogTitle>Add New Act</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Please enter your new act description.
+          </DialogContentText>
+          <TextField
+            value={newActNameText}
+            onChange={(e) => { setNewActNameText(e.target.value); }}
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Act Description"
+            type="text"
+            fullWidth
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button variant="text" onClick={handleAddActDialogClose}>Cancel</Button>
+          <Button variant="contained" onClick={createNewAct}>Create</Button>
+        </DialogActions>
+      </Dialog>
+      <HeaderContainer>
+        <h1>Acts for Beatsheet</h1>
+        <AddActButton variant="contained" onClick={() => { setAddActDialogOpen(true); }}>Add Act</AddActButton>
+      </HeaderContainer>
       <div>
         {
           acts.map((act) => <ActView key={act.id} act={act}/>)
