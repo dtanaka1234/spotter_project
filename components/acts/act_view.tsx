@@ -5,6 +5,8 @@ import MovieIcon from '@mui/icons-material/Movie';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Act } from "../../types/acts";
+import { HorizontalScroll } from "./act_view.styled";
+import BeatView from "../beats/beat_view";
 
 interface Props {
   act: Act;
@@ -27,7 +29,9 @@ export default function ActView({ act } : Props) {
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
       <Collapse in={open} timeout="auto" unmountOnExit>
-        <div>Beats</div>
+        <HorizontalScroll>
+          { act.beats.map((beat) => <BeatView key={beat.id} beat={beat}/>) }
+        </HorizontalScroll>
       </Collapse>
     </div>
   );

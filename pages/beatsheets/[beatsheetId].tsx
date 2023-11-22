@@ -9,23 +9,56 @@ interface StaticProps {
   acts: any[];
 }
 
-export const getStaticProps: GetStaticProps = async () => {
-  const actsForBeatsheet: any[] = await prisma.$queryRaw`
+export const getStaticProps: GetStaticProps = async (context) => {
+  const { params } = context;
+  const beatsheetId = params.beatsheetId;
+
+  const beatsForActs: any[] = await prisma.$queryRaw`
       SELECT
-          *
-      FROM "BeatSheet"
-               LEFT OUTER JOIN "Act" as act ON act."beatSheetId" = "BeatSheet".id
+          beatsheet.title,
+          act.id as actid,
+          act.description as actdescription,
+          beat.id as beatid,
+          beat.description as beatdescription,
+          beat."cameraAngle",
+          beat.duration
+      FROM "BeatSheet" as beatsheet
+               LEFT OUTER JOIN "Act" as act ON act."beatSheetId" = beatsheet.id
+               LEFT OUTER JOIN "Beat" as beat ON beat."actId" = act.id
+      WHERE beatsheet.id = ${beatsheetId}::INT
     `;
 
   let beatsheetTitle = '';
-  const convertedActs: Act[] = [];
-  for (const element of actsForBeatsheet) {
-    beatsheetTitle = element.title;
-    convertedActs.push({
-      id: element.id,
-      description: element.description,
-    });
+  const actIdMap = {};
+  for (const element of beatsForActs) {
+    if (actIdMap[element.actid]) {
+      actIdMap[element.actid].beats.push({
+        id: element.beatid,
+        description: element.beatdescription,
+        duration: element.duration,
+        cameraAngle: element.cameraAngle,
+      });
+    } else {
+      actIdMap[element.actid] = {
+        id: element.actid,
+        description: element.actdescription,
+        beats: [
+          {
+            id: element.beatid,
+            description: element.beatdescription,
+            duration: element.duration,
+            cameraAngle: element.cameraAngle,
+          }
+        ],
+      }
+    }
   }
+
+  const convertedActs: Act[] = Object.keys(actIdMap).reduce((acc, key) => {
+    const actObj = actIdMap[key];
+    acc.push(actObj);
+    return acc;
+  }, []);
 
   return {
     props: { beatsheetTitle, acts: convertedActs },
