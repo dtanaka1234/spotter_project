@@ -5,7 +5,7 @@ import prisma from "../../lib/prisma";
 import { Beatsheet } from "../../types/beatsheets";
 import Grid from '@mui/material/Grid';
 
-import { StyledCard, StyledCardImg, StyledCardTitle } from './index.styled';
+import { StyledCard, StyledCardImg, StyledCardTitle } from '../../components/beatsheets/beatsheets.styled';
 import { Button, CardActions, CardContent } from "@mui/material";
 
 interface StaticProps {
