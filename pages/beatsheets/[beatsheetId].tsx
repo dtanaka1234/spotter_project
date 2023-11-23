@@ -12,7 +12,7 @@ import ActView from "../../components/acts/act_view";
 import { Act } from "../../types/acts";
 import { AddActButton, HeaderContainer } from "../../components/beatsheets/beatsheets.styled";
 import { Button, TextField } from "@mui/material";
-import {ActsResponse, getActs} from "../../api_clients/acts";
+import { ActsResponse, getActs } from "../../api_clients/acts";
 
 interface StaticProps {
   beatsheetId: number;

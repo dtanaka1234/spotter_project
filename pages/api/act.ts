@@ -18,6 +18,15 @@ export default async function handler(
     });
     res.status(200).json({ message: "Success" });
     return;
+  } else if (req.method == "DELETE") {
+    const query = req.query;
+    const { actId } = query;
+    await prisma.act.delete({
+      where: {
+        id: parseInt(actId as string),
+      },
+    });
+    res.status(200).json({ message: "Success" });
   }
   res.status(404);
 }
