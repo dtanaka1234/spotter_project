@@ -30,6 +30,9 @@ export default function BeatView({ beat, openEditBeatDialog, openDeleteBeatDialo
         <StyledCardDescription>
           {`${beat.duration} seconds`}
         </StyledCardDescription>
+        <StyledCardDescription>
+          {`${beat.cameraAngle}`}
+        </StyledCardDescription>
       </CardContent>
       <StyledCardFooter>
         <IconButton onClick={updateClicked}>

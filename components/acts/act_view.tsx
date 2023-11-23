@@ -35,7 +35,7 @@ interface Props {
 }
 
 export default function ActView({ editBeatMutation, act, addBeatMutation, deleteActMutation, deleteBeatMutation } : Props) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
   const [deleteActDialogOpen, setDeleteActDialogOpen] = React.useState<boolean>(false);
   const [addBeatDialogOpen, setAddBeatDialogOpen] = React.useState<boolean>(false);
   const [deleteBeatDialogOpen, setDeleteBeatDialogOpen] = React.useState<boolean>(false);
