@@ -65,6 +65,9 @@ export default function ActView({ editBeatMutation, act, addBeatMutation, delete
   const handleAddBeatDialogClose = () => {
     setAddBeatDialogOpen(false);
     setIsUpdatingBeatId(null);
+    setNewBeatDescriptionText("");
+    setNewBeatDuration(null);
+    setNewBeatCameraAngle(null);
   };
 
   const handleDeleteBeatDialogClose = () => {
