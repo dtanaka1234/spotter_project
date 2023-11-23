@@ -13,9 +13,9 @@ const GlobalPageContainer = styled.div`
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <GlobalPageContainer>
-        <Component {...pageProps} />
-      </GlobalPageContainer>
+        <GlobalPageContainer>
+          <Component {...pageProps} />
+        </GlobalPageContainer>
     </QueryClientProvider>
   );
 }

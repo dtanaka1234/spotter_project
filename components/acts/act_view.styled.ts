@@ -6,3 +6,8 @@ export const HorizontalScroll = styled.div`
   width: 100%;
   overflow-y: scroll;
 `
+
+export const HeaderContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+`

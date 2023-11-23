@@ -30,10 +30,10 @@ export default function BeatView({ beat } : Props) {
         </StyledCardDescription>
       </CardContent>
       <CardActions style={{ width: "90%", justifyContent: "flex-end" }}>
-        <IconButton disabled onClick={updateClicked}>
+        <IconButton onClick={updateClicked}>
           <EditIcon />
         </IconButton>
-        <IconButton disabled onClick={deleteClicked}>
+        <IconButton onClick={deleteClicked}>
           <DeleteIcon />
         </IconButton>
       </CardActions>

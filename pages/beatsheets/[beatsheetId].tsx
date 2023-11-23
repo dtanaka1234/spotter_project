@@ -125,7 +125,7 @@ export default function BeatsheetEditor({ beatsheetId, beatsheetTitle, acts }: S
       </HeaderContainer>
       <div>
         {
-          data?.acts.map((act) => <ActView key={act.id} act={act}/>)
+          data?.acts.map((act) => <ActView key={act.id} act={act} beatsheetId={beatsheetId}/>)
         }
       </div>
     </div>
