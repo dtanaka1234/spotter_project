@@ -28,6 +28,7 @@ export default async function handler(
                LEFT OUTER JOIN "Act" as act ON act."beatSheetId" = beatsheet.id
                LEFT OUTER JOIN "Beat" as beat ON beat."actId" = act.id
       WHERE beatsheet.id = ${beatsheetId}::INT
+      ORDER BY act.id ASC, beat.id ASC
     `;
 
     let beatsheetTitle = '';

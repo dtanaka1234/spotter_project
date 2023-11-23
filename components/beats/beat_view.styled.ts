@@ -6,6 +6,7 @@ export const StyledCard = styled(Card)`
   margin: 1rem;
   flex-shrink: 0;
   height: 350px;
+  max-width: 500px;
 `;
 
 export const StyledCardImg = styled.img`

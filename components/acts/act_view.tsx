@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, UseMutationResult, useQueryClient } from "@tanstack/react-query";
 
 import {
   Button,
@@ -24,14 +24,16 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Dialog from "@mui/material/Dialog";
-import {Beat, CameraAngle} from "../../types/beats";
+import { Beat, CameraAngle } from "../../types/beats";
 
 interface Props {
-  beatsheetId: number;
+  addBeatMutation: UseMutationResult;
+  deleteActMutation: UseMutationResult;
+  editBeatMutation: UseMutationResult;
   act: Act;
 }
 
-export default function ActView({ beatsheetId, act } : Props) {
+export default function ActView({ editBeatMutation, act, addBeatMutation, deleteActMutation } : Props) {
   const [open, setOpen] = React.useState(false);
   const [deleteActDialogOpen, setDeleteActDialogOpen] = React.useState<boolean>(false);
 
@@ -41,52 +43,6 @@ export default function ActView({ beatsheetId, act } : Props) {
   const [isUpdatingBeatId, setIsUpdatingBeatId] = React.useState<number | null>(null);
   // TODO: Right now this is hard coded ideally we would get this enum from the backend
   const [newBeatCameraAngle, setNewBeatCameraAngle] = React.useState<CameraAngle | null>(null);
-
-  const queryClient = useQueryClient();
-
-  const deleteActMutation = useMutation<any, any, any, any>({
-    mutationFn: () => {
-      return fetch(`/api/act?actId=${act.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['actsList', beatsheetId] })
-    },
-  } as any);
-
-  const addBeatMutation = useMutation<any, any, any, any>({
-    mutationFn: ({ actId, description, duration, cameraAngle }) => {
-      return fetch("/api/beat", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ actId, description, duration, cameraAngle }),
-      })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['actsList', beatsheetId] })
-    },
-  } as any);
-
-  const editBeatMutation = useMutation<any, any, any, any>({
-    mutationFn: ({ actId, description, duration, cameraAngle }) => {
-      return fetch(`/api/beat?beatId=${isUpdatingBeatId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ actId, description, duration, cameraAngle }),
-      })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['actsList', beatsheetId] })
-    },
-  } as any);
 
   const handleClick = () => {
     setOpen(!open);
@@ -118,7 +74,7 @@ export default function ActView({ beatsheetId, act } : Props) {
   };
 
   const doDeleteAct = () => {
-    deleteActMutation.mutate();
+    deleteActMutation.mutate(act.id);
     setDeleteActDialogOpen(false);
   };
 
@@ -134,7 +90,7 @@ export default function ActView({ beatsheetId, act } : Props) {
 
   const doUpdateBeat = () => {
     editBeatMutation.mutate({
-      actId: act.id,
+      beatId: isUpdatingBeatId,
       description: newBeatDescriptionText,
       duration: newBeatDuration,
       cameraAngle: newBeatCameraAngle,

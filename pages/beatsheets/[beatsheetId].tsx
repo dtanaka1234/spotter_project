@@ -80,6 +80,50 @@ export default function BeatsheetEditor({ beatsheetId, beatsheetTitle, acts }: S
     },
   } as any);
 
+  const addBeatMutation = useMutation<any, any, any, any>({
+    mutationFn: ({ actId, description, duration, cameraAngle }) => {
+      return fetch("/api/beat", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ actId, description, duration, cameraAngle }),
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actsList', beatsheetId] })
+    },
+  } as any);
+
+  const editBeatMutation = useMutation<any, any, any, any>({
+    mutationFn: ({ beatId, description, duration, cameraAngle }) => {
+      return fetch(`/api/beat?beatId=${beatId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ description, duration, cameraAngle }),
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actsList', beatsheetId] })
+    },
+  } as any);
+
+  const deleteActMutation = useMutation<any, any, any, any>({
+    mutationFn: (actId) => {
+      return fetch(`/api/act?actId=${actId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actsList', beatsheetId] })
+    },
+  } as any);
+
   const handleAddActDialogClose = () => {
     setAddActDialogOpen(false);
     setNewActNameText("");
@@ -125,7 +169,15 @@ export default function BeatsheetEditor({ beatsheetId, beatsheetTitle, acts }: S
       </HeaderContainer>
       <div>
         {
-          data?.acts.map((act) => <ActView key={act.id} act={act} beatsheetId={beatsheetId}/>)
+          data?.acts.map((act) => (
+            <ActView
+              key={act.id}
+              act={act}
+              addBeatMutation={addBeatMutation}
+              editBeatMutation={editBeatMutation}
+              deleteActMutation={deleteActMutation}
+            />
+          ))
         }
       </div>
     </div>
