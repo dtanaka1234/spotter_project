@@ -8,15 +8,16 @@ import { Beat } from "../../types/beats";
 interface Props {
   beat: Beat;
   openEditBeatDialog: (beat: Beat) => void;
+  openDeleteBeatDialog: (beat: Beat) => void;
 }
 
-export default function BeatView({ beat, openEditBeatDialog } : Props) {
+export default function BeatView({ beat, openEditBeatDialog, openDeleteBeatDialog } : Props) {
   const updateClicked = () => {
     openEditBeatDialog(beat);
   };
 
   const deleteClicked = () => {
-
+    openDeleteBeatDialog(beat);
   };
 
   return (

@@ -30,14 +30,16 @@ interface Props {
   addBeatMutation: UseMutationResult;
   deleteActMutation: UseMutationResult;
   editBeatMutation: UseMutationResult;
+  deleteBeatMutation: UseMutationResult;
   act: Act;
 }
 
-export default function ActView({ editBeatMutation, act, addBeatMutation, deleteActMutation } : Props) {
+export default function ActView({ editBeatMutation, act, addBeatMutation, deleteActMutation, deleteBeatMutation } : Props) {
   const [open, setOpen] = React.useState(false);
   const [deleteActDialogOpen, setDeleteActDialogOpen] = React.useState<boolean>(false);
-
   const [addBeatDialogOpen, setAddBeatDialogOpen] = React.useState<boolean>(false);
+  const [deleteBeatDialogOpen, setDeleteBeatDialogOpen] = React.useState<boolean>(false);
+
   const [newBeatDescriptionText, setNewBeatDescriptionText] = React.useState<string>("");
   const [newBeatDuration, setNewBeatDuration] = React.useState<number | null>(null);
   const [isUpdatingBeatId, setIsUpdatingBeatId] = React.useState<number | null>(null);
@@ -65,12 +67,22 @@ export default function ActView({ editBeatMutation, act, addBeatMutation, delete
     setIsUpdatingBeatId(null);
   };
 
+  const handleDeleteBeatDialogClose = () => {
+    setDeleteBeatDialogOpen(false);
+    setIsUpdatingBeatId(null);
+  };
+
   const openEditBeatDialog = (beat: Beat) => {
     setIsUpdatingBeatId(beat.id);
     setNewBeatDescriptionText(beat.description);
     setNewBeatDuration(beat.duration);
     setNewBeatCameraAngle(beat.cameraAngle);
     setAddBeatDialogOpen(true);
+  };
+
+  const deleteBeatClicked = (beat: Beat) => {
+    setDeleteBeatDialogOpen(true);
+    setIsUpdatingBeatId(beat.id);
   };
 
   const doDeleteAct = () => {
@@ -98,6 +110,11 @@ export default function ActView({ editBeatMutation, act, addBeatMutation, delete
     setAddBeatDialogOpen(false);
   };
 
+  const doDeleteBeat = () => {
+    deleteBeatMutation.mutate(isUpdatingBeatId);
+    setDeleteBeatDialogOpen(false);
+  };
+
   return (
     <div>
       <Dialog open={deleteActDialogOpen} onClose={handleDeleteActDialogClose}>
@@ -110,6 +127,18 @@ export default function ActView({ editBeatMutation, act, addBeatMutation, delete
         <DialogActions>
           <Button variant="text" onClick={handleDeleteActDialogClose}>Cancel</Button>
           <Button variant="contained" color="warning" onClick={doDeleteAct}>Delete</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={deleteBeatDialogOpen} onClose={handleDeleteBeatDialogClose}>
+        <DialogTitle>Delete Beat</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you use you want to delete this beat?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="text" onClick={handleDeleteBeatDialogClose}>Cancel</Button>
+          <Button variant="contained" color="warning" onClick={doDeleteBeat}>Delete</Button>
         </DialogActions>
       </Dialog>
       <Dialog open={addBeatDialogOpen} onClose={handleAddBeatDialogClose}>
@@ -172,7 +201,7 @@ export default function ActView({ editBeatMutation, act, addBeatMutation, delete
       </HeaderContainer>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <HorizontalScroll>
-          { act.beats.map((beat) => <BeatView key={beat.id} beat={beat} openEditBeatDialog={openEditBeatDialog} />) }
+          { act.beats.map((beat) => <BeatView key={beat.id} beat={beat} openEditBeatDialog={openEditBeatDialog} openDeleteBeatDialog={deleteBeatClicked} />) }
         </HorizontalScroll>
       </Collapse>
     </div>

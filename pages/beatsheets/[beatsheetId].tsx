@@ -124,6 +124,20 @@ export default function BeatsheetEditor({ beatsheetId, beatsheetTitle, acts }: S
     },
   } as any);
 
+  const deleteBeatMutation = useMutation<any, any, any, any>({
+    mutationFn: (beatId) => {
+      return fetch(`/api/beat?beatId=${beatId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actsList', beatsheetId] })
+    },
+  } as any);
+
   const handleAddActDialogClose = () => {
     setAddActDialogOpen(false);
     setNewActNameText("");
@@ -176,6 +190,7 @@ export default function BeatsheetEditor({ beatsheetId, beatsheetTitle, acts }: S
               addBeatMutation={addBeatMutation}
               editBeatMutation={editBeatMutation}
               deleteActMutation={deleteActMutation}
+              deleteBeatMutation={deleteBeatMutation}
             />
           ))
         }

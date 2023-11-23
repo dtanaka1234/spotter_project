@@ -36,6 +36,16 @@ export default async function handler(
     });
     res.status(200).json({ message: "Success" });
     return;
+  } else if (req.method == "DELETE") {
+    const query = req.query;
+    const { beatId } = query;
+    await prisma.beat.delete({
+      where: {
+        id: parseInt(beatId as string),
+      },
+    });
+    res.status(200).json({ message: "Success" });
+    return;
   }
   res.status(404);
 }
