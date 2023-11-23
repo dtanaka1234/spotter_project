@@ -181,7 +181,14 @@ export default function ActView({ editBeatMutation, act, addBeatMutation, delete
         </DialogContent>
         <DialogActions>
           <Button variant="text" onClick={handleAddBeatDialogClose}>Close</Button>
-          <Button variant="contained" color="primary" onClick={isUpdatingBeatId ? doUpdateBeat : doAddBeat}>{isUpdatingBeatId ? "Update" : "Add"}</Button>
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={!newBeatDescriptionText || !newBeatDuration || !newBeatCameraAngle}
+            onClick={isUpdatingBeatId ? doUpdateBeat : doAddBeat}
+          >
+            {isUpdatingBeatId ? "Update" : "Add"}
+          </Button>
         </DialogActions>
       </Dialog>
       <HeaderContainer>

@@ -174,7 +174,7 @@ export default function BeatsheetEditor({ beatsheetId, beatsheetTitle, acts }: S
         </DialogContent>
         <DialogActions>
           <Button variant="text" onClick={handleAddActDialogClose}>Cancel</Button>
-          <Button variant="contained" onClick={createNewAct}>Create</Button>
+          <Button variant="contained" disabled={!newActNameText} onClick={createNewAct}>Create</Button>
         </DialogActions>
       </Dialog>
       <HeaderContainer>
