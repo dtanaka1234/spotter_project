@@ -24,7 +24,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Dialog from "@mui/material/Dialog";
-import { CameraAngle } from "../../types/beats";
+import {Beat, CameraAngle} from "../../types/beats";
 
 interface Props {
   beatsheetId: number;
@@ -38,13 +38,14 @@ export default function ActView({ beatsheetId, act } : Props) {
   const [addBeatDialogOpen, setAddBeatDialogOpen] = React.useState<boolean>(false);
   const [newBeatDescriptionText, setNewBeatDescriptionText] = React.useState<string>("");
   const [newBeatDuration, setNewBeatDuration] = React.useState<number | null>(null);
+  const [isUpdatingBeatId, setIsUpdatingBeatId] = React.useState<number | null>(null);
   // TODO: Right now this is hard coded ideally we would get this enum from the backend
   const [newBeatCameraAngle, setNewBeatCameraAngle] = React.useState<CameraAngle | null>(null);
 
   const queryClient = useQueryClient();
 
   const deleteActMutation = useMutation<any, any, any, any>({
-    mutationFn: (newActName) => {
+    mutationFn: () => {
       return fetch(`/api/act?actId=${act.id}`, {
         method: 'DELETE',
         headers: {
@@ -61,6 +62,21 @@ export default function ActView({ beatsheetId, act } : Props) {
     mutationFn: ({ actId, description, duration, cameraAngle }) => {
       return fetch("/api/beat", {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ actId, description, duration, cameraAngle }),
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actsList', beatsheetId] })
+    },
+  } as any);
+
+  const editBeatMutation = useMutation<any, any, any, any>({
+    mutationFn: ({ actId, description, duration, cameraAngle }) => {
+      return fetch(`/api/beat?beatId=${isUpdatingBeatId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -90,6 +106,15 @@ export default function ActView({ beatsheetId, act } : Props) {
 
   const handleAddBeatDialogClose = () => {
     setAddBeatDialogOpen(false);
+    setIsUpdatingBeatId(null);
+  };
+
+  const openEditBeatDialog = (beat: Beat) => {
+    setIsUpdatingBeatId(beat.id);
+    setNewBeatDescriptionText(beat.description);
+    setNewBeatDuration(beat.duration);
+    setNewBeatCameraAngle(beat.cameraAngle);
+    setAddBeatDialogOpen(true);
   };
 
   const doDeleteAct = () => {
@@ -99,6 +124,16 @@ export default function ActView({ beatsheetId, act } : Props) {
 
   const doAddBeat = () => {
     addBeatMutation.mutate({
+      actId: act.id,
+      description: newBeatDescriptionText,
+      duration: newBeatDuration,
+      cameraAngle: newBeatCameraAngle,
+    });
+    setAddBeatDialogOpen(false);
+  };
+
+  const doUpdateBeat = () => {
+    editBeatMutation.mutate({
       actId: act.id,
       description: newBeatDescriptionText,
       duration: newBeatDuration,
@@ -122,7 +157,7 @@ export default function ActView({ beatsheetId, act } : Props) {
         </DialogActions>
       </Dialog>
       <Dialog open={addBeatDialogOpen} onClose={handleAddBeatDialogClose}>
-        <DialogTitle>Add New Beat</DialogTitle>
+        <DialogTitle>{isUpdatingBeatId ? "Update Beat" : "Add New Beat"}</DialogTitle>
         <DialogContent>
           <TextField
             value={newBeatDescriptionText}
@@ -161,7 +196,7 @@ export default function ActView({ beatsheetId, act } : Props) {
         </DialogContent>
         <DialogActions>
           <Button variant="text" onClick={handleAddBeatDialogClose}>Close</Button>
-          <Button variant="contained" color="primary" onClick={doAddBeat}>Add</Button>
+          <Button variant="contained" color="primary" onClick={isUpdatingBeatId ? doUpdateBeat : doAddBeat}>{isUpdatingBeatId ? "Update" : "Add"}</Button>
         </DialogActions>
       </Dialog>
       <HeaderContainer>
@@ -181,7 +216,7 @@ export default function ActView({ beatsheetId, act } : Props) {
       </HeaderContainer>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <HorizontalScroll>
-          { act.beats.map((beat) => <BeatView key={beat.id} beat={beat}/>) }
+          { act.beats.map((beat) => <BeatView key={beat.id} beat={beat} openEditBeatDialog={openEditBeatDialog} />) }
         </HorizontalScroll>
       </Collapse>
     </div>

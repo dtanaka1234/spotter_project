@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyledCard, StyledCardImg, StyledCardTitle, StyledCardDescription } from './beat_view.styled';
+import {StyledCard, StyledCardImg, StyledCardTitle, StyledCardDescription, StyledCardFooter} from './beat_view.styled';
 import { CardActions, CardContent, IconButton } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -7,11 +7,12 @@ import { Beat } from "../../types/beats";
 
 interface Props {
   beat: Beat;
+  openEditBeatDialog: (beat: Beat) => void;
 }
 
-export default function BeatView({ beat } : Props) {
+export default function BeatView({ beat, openEditBeatDialog } : Props) {
   const updateClicked = () => {
-
+    openEditBeatDialog(beat);
   };
 
   const deleteClicked = () => {
@@ -21,7 +22,7 @@ export default function BeatView({ beat } : Props) {
   return (
     <StyledCard key={beat.id} sx={{ minWidth: 150, width: 150 + (beat.duration * 1.5) }}>
       <StyledCardImg src="/sample_beatsheet_thumbnail.jpg"/>
-      <CardContent>
+      <CardContent style={{ position: "relative" }}>
         <StyledCardTitle>
           { beat.description }
         </StyledCardTitle>
@@ -29,14 +30,14 @@ export default function BeatView({ beat } : Props) {
           {`${beat.duration} seconds`}
         </StyledCardDescription>
       </CardContent>
-      <CardActions style={{ width: "90%", justifyContent: "flex-end" }}>
+      <StyledCardFooter>
         <IconButton onClick={updateClicked}>
           <EditIcon />
         </IconButton>
         <IconButton onClick={deleteClicked}>
           <DeleteIcon />
         </IconButton>
-      </CardActions>
+      </StyledCardFooter>
     </StyledCard>
   );
 }
